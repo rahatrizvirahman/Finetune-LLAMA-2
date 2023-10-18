@@ -27,10 +27,12 @@ def load_model(model_name, bnb_config):
 
 
 def create_prompt_formats(sample):
-    sample["text"] = """Classify the sentence into 0, 1, or 2. Where 0 means neutral, 1 means positive, and 2 means negative. Reply with only one label: 0, 1, or 2.
+    sample["text"] = """Classify the sentence below into 0, 1, or 2. Where 0 means neutral, 1 means positive, and 2 means negative. Reply with only one label: 0, 1, or 2.
 
-    Sentence: """  +sample["sentence"]+    """
-    Label: """   +str(sample["label"])+    """
+    ### Sentence: """  +sample["sentence"]+    """
+    ### Label: """   +str(sample["label"])+    """
+
+    ### END
     """
     
     return sample
@@ -76,7 +78,7 @@ def preprocess_dataset(tokenizer: AutoTokenizer, max_length: int, seed, dataset:
     dataset = dataset.map(
         _preprocessing_function,
         batched=True,
-        remove_columns=["instruction", "context", "response", "text", "category"],
+        remove_columns=['sentence','label','text']
     )
 
     # Filter out samples that have input_ids exceeding max_length

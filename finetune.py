@@ -42,7 +42,7 @@ model, tokenizer = load_model(model_name, bnb_config)
 max_length = get_max_length(model)
 dataset = preprocess_dataset(tokenizer, max_length, seed, dataset)
 
-output_dir = "results/llama2/final_checkpoint"
+output_dir = "./results/llama2/final_checkpoint"
 train(model, tokenizer, dataset, output_dir)
 
 model = AutoPeftModelForCausalLM.from_pretrained(
@@ -50,7 +50,7 @@ model = AutoPeftModelForCausalLM.from_pretrained(
 )
 model = model.merge_and_unload()
 
-output_merged_dir = "results/llama2/final_merged_checkpoint"
+output_merged_dir = "./results/llama2/final_merged_checkpoint"
 os.makedirs(output_merged_dir, exist_ok=True)
 model.save_pretrained(output_merged_dir, safe_serialization=True)
 
@@ -59,7 +59,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.save_pretrained(output_merged_dir)
 
 # Specify input
-text = "What is OVHcloud?"
+text = "আকাশে পাখি উড়ে।"
 
 # Specify device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
