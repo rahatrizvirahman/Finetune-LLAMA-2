@@ -25,16 +25,30 @@ def load_model(model_name, bnb_config):
 
     return model, tokenizer
 
-
 def create_prompt_formats(sample):
-    sample["text"] = """Classify the sentence below into 0, 1, or 2. Where 0 means neutral, 1 means positive, and 2 means negative. Reply with only one label: 0, 1, or 2.
-
-    ### Sentence: """  +sample["sentence"]+    """
-    ### Label: """   +str(sample["label"])+    """
-
-    ### END
     """
+    Format various fields of the sample ('instruction', 'context', 'response')
+    Then concatenate them using two newline characters 
+    :param sample: Sample dictionnary
+    """
+    INTRO_BLURB = "Below is an instruction that describes a task. Write a response that appropriately completes the request."
+    INSTRUCTION_KEY = "### Instruction:"
+    INPUT_KEY = "### Input:"
+    RESPONSE_KEY = "### Response:"
+    END_KEY = "### End"
     
+    blurb = f"{INTRO_BLURB}"
+    instruction = f"{INSTRUCTION_KEY}\n{sample['question']}"
+    input_context = f"{INPUT_KEY}\n{sample['context']}" if sample["context"] else None
+    response = f"{RESPONSE_KEY}\n{sample['answer']}"
+    end = f"{END_KEY}"
+    
+    parts = [part for part in [blurb, instruction, input_context, response, end] if part]
+
+    formatted_prompt = "\n\n".join(parts)
+    
+    sample["text"] = formatted_prompt
+
     return sample
 
 # SOURCE https://github.com/databrickslabs/dolly/blob/master/training/trainer.py
@@ -78,7 +92,7 @@ def preprocess_dataset(tokenizer: AutoTokenizer, max_length: int, seed, dataset:
     dataset = dataset.map(
         _preprocessing_function,
         batched=True,
-        remove_columns=['sentence','label','text']
+        remove_columns=['title','context', 'question', 'answer','text']
     )
 
     # Filter out samples that have input_ids exceeding max_length

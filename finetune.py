@@ -29,9 +29,11 @@ from utils import *
 seed = 42
 set_seed(seed)
 
-dataset = pd.read_csv("./datasets/SentNoB Dataset/Train.csv")
-print(f"Number of prompts: {len(dataset)}")
-print(f"Column names are: {dataset.column_names}")
+dataset = load_dataset("csebuetnlp/squad_bn")
+train_dataset = dataset['train']
+
+print(f"Number of prompts: {len(train_dataset)}")
+print(f"Column names are: {train_dataset.column_names}")
 
 # Load model from HF with user's token and with bitsandbytes config
 model_name = "meta-llama/Llama-2-7b-hf"
@@ -40,7 +42,7 @@ model, tokenizer = load_model(model_name, bnb_config)
 
 ## Preprocess dataset
 max_length = get_max_length(model)
-dataset = preprocess_dataset(tokenizer, max_length, seed, dataset)
+dataset = preprocess_dataset(tokenizer, max_length, seed, train_dataset)
 
 output_dir = "./results/llama2/final_checkpoint"
 train(model, tokenizer, dataset, output_dir)
